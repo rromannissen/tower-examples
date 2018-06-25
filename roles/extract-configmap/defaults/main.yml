@@ -1,0 +1,4 @@
+---
+# defaults file for extract-configmap
+TEMPLATE_FILE_NAME: "Template.yml"
+CM_TEMPLATE_FILE_NAME: "Template-cm.json"

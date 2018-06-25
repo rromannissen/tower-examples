@@ -1,0 +1,24 @@
+PidFile {{ APACHE_CONF_BIN_PATH }}/tmp/httpd.pid
+
+User {{ APACHE_USER }}
+Group {{ APACHE_GROUP }}
+
+ServerRoot {{ APACHE_CONF_BIN_PATH }}
+
+ErrorLog  "|{{ APACHE_CORE_BIN_PATH }}/sbin/rotatelogs  {{ APACHE_LOG_PATH }}/error_log.%Y%m%d 86400"
+LogLevel warn
+
+
+SetEnvIf Remote_Addr "127\.0\.0\.1" loopback
+SetEnvIf Remote_Addr {{ inventory_hostname }} loopkack
+LogFormat "%h %u %t \"%r\" %>s %b %T \"%{Referer}i\" \"%{User-agent}i\" " rh_format
+
+
+<IfModule mime_module>
+    TypesConfig "{{ APACHE_CONF_BIN_PATH }}/conf/mime.types"
+    AddType application/x-compress .Z
+    AddType application/x-gzip .gz .tgz
+</IfModule>
+
+Include conf.modules.d/*.conf
+Include conf.d/*.conf

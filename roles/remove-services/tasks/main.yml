@@ -1,0 +1,10 @@
+---
+# tasks file for remove-services
+
+- include: 00_remove_services.yml
+  when: ERROR_HANDLING is undefined
+
+- include: 01_remove_services_error_handling.yml
+  when:
+    - ERROR_HANDLING is defined
+    - ERROR_HANDLING == true

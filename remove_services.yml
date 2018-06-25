@@ -1,0 +1,7 @@
+---
+
+- name: "[Global] Remove services"
+  hosts: target
+  become: true
+  roles:
+    - remove-services

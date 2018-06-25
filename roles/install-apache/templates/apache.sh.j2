@@ -1,0 +1,22 @@
+#!/bin/sh
+umask 002
+
+PRG="$0"
+
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
+PRGDIR=`dirname "${PRG}"`
+
+# Start server
+{{ APACHE_CORE_BIN_PATH }}/sbin/apachectl -f {{ APACHE_CONF_BIN_PATH }}/conf/httpd.conf -E {{ APACHE_LOG_PATH }}/http.log -k {{ item }}
+
+DATE=`date "+%d/%m/%Y %H:%M:%S"`
+echo "${DATE} - Apache {{ item }} \"{{ INSTANCE_NAME }}\"" >> {{ APACHE_LOG_PATH }}/Oper.log

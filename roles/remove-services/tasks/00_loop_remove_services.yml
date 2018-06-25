@@ -1,0 +1,15 @@
+---
+- name: '[Remove Service] Stop service'
+  service:
+    name: "{{ outer_item }}"
+    state: stopped
+
+- name: '[Remove Service] Disable services'
+  service:
+    name: "{{ outer_item }}"
+    enabled: no
+
+- name: '[Remove Service] Remove service declaration files'
+  file:
+    path: "/etc/systemd/system/{{ outer_item }}.service"
+    state: absent

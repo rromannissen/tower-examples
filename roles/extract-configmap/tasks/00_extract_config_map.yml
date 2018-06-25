@@ -1,0 +1,41 @@
+---
+- name: "[Extract ConfigMap in Template] Load template file"
+  command: "cat {{ TEMPLATE_FILE_PATH }}/{{ TEMPLATE_FILE_NAME }}"
+  register: template_file_content
+
+- name: "[Extract ConfigMap in Template] Parse YAML template into dictionary"
+  set_fact:
+    TEMPLATE_DICTIONARY: "{{ template_file_content.stdout | from_yaml }}"
+
+- name: "[Extract ConfigMap in Template] Get ConfigMap dictionary from template"
+  set_fact:
+    CONFIGMAP_DICTIONARY: "{{TEMPLATE_DICTIONARY.objects[item | int]}}"
+  when: TEMPLATE_DICTIONARY.objects[{{ item }}].kind == "ConfigMap"
+  with_sequence: start=0 end="{{ (TEMPLATE_DICTIONARY.objects | length) - 1 }}"
+
+- name: "[Extract ConfigMap in Template] Init empty template dictionary"
+  set_fact:
+    CONFIGMAP_TEMPLATE_DICTIONARY: {}
+
+- name: "[Extract ConfigMap in Template] Get rid of object list of template dictionary"
+  set_fact:
+    CONFIGMAP_TEMPLATE_DICTIONARY: "{{CONFIGMAP_TEMPLATE_DICTIONARY | combine({item.key: item.value})}}"
+  when: "{{item.key not in ['objects']}}"
+  with_dict: "{{ TEMPLATE_DICTIONARY }}"
+
+- name: "[Extract ConfigMap in Template] Init objects list"
+  set_fact:
+    OBJECTS_LIST: {objects: ['{{ CONFIGMAP_DICTIONARY }}']}
+
+- name: "[Extract ConfigMap in Template] Get rid of object list of template dictionary"
+  set_fact:
+    CONFIGMAP_TEMPLATE_DICTIONARY: "{{CONFIGMAP_TEMPLATE_DICTIONARY | combine(OBJECTS_LIST)}}"
+
+- name: "[Extract ConfigMap in Template] Format template dictionary as JSON"
+  set_fact:
+    CONFIGMAP_TEMPLATE_DICTIONARY: "{{ CONFIGMAP_TEMPLATE_DICTIONARY | to_nice_json }}"
+
+- name: '[Extract ConfigMap in Template] Create new template file'
+  copy:
+    content: "{{ CONFIGMAP_TEMPLATE_DICTIONARY }}"
+    dest: "{{ TEMPLATE_FILE_PATH }}/{{ CM_TEMPLATE_FILE_NAME }}"

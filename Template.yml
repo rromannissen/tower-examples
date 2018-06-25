@@ -1,0 +1,86 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: springboot
+  annotations:
+    tags: app,java,springboot
+labels:
+  template: springboot
+objects:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: ${APP_ID}
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: ${APP_ID}
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${APP_ID}
+  spec:
+    host: ${APP_ID}.${PROJECT}.${DOMAIN}
+    to:
+      kind: Service
+      name: ${APP_ID}
+    port:
+      targetPort: web
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: ${APP_ID}-config
+    labels:
+      app: "${APP_ID}"
+  data:
+    example.property.1: hello
+    example.property.2: world
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: ${APP_ID}
+    labels:
+      app: "${APP_ID}"
+  spec:
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 1
+        maxUnavailable: 1
+        timeoutSeconds: 300
+        updatePeriodSeconds: 5
+      type: Rolling
+    revisionHistoryLimit: 2
+    replicas: 1
+    selector:
+      name: ${APP_ID}
+    template:
+      metadata:
+        name: ${APP_ID}
+        labels:
+          name: ${APP_ID}
+      spec:
+        containers:
+        - name: ${APP_ID}
+          image: ${APP_ID}:latest
+          imagePullPolicy: Always
+          env:
+          ports:
+          - containerPort: 8080
+          volumeMounts:
+          - name: ${APP_ID}-config
+            mountPath: /spring-web/config
+        volumes:
+          - name: ${APP_ID}-config
+            configMap:
+              name: ${APP_ID}
+parameters:
+- name: APP_ID
+  description: Application ID
+- name: PROJECT
+  description: Openshift project
+- name: DOMAIN
+  description: Openshift route domain name

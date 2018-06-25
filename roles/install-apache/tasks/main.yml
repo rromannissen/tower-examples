@@ -1,0 +1,12 @@
+---
+# tasks file for install_apache
+#Check if a previous core installation exists.
+- stat:
+    path: "{{ APACHE_CORE_BIN_PATH }}"
+  register: APACHE_CORE_PATH
+#Execute install core only if it hasn't been installed before (directory doesnt exist.)
+- include: 00_install_core.yml
+  when: APACHE_CORE_PATH.stat.isdir is not defined
+
+- include: 01_install_instance.yml
+- include: 02_configure_service.yml

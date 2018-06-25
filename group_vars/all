@@ -1,0 +1,15 @@
+#Download config
+NEXUS_BASE_URL: "https://repo.adobe.com/nexus"
+NEXUS_REPOSITORY: "public"
+DOWNLOAD_PATH: "{{ ansible_env.HOME }}/downloads"
+
+#Apache config
+APACHE_BASE_CORE_BIN_PATH: "/opt"
+APACHE_CORE_DIRNAME: "httpd_bin"
+APACHE_BASE_CONF_BIN_PATH: "/opt/instances"
+APACHE_CORE_BINARIES_PATH: "/opt/binaries"
+
+#ISO Codes
+SPAIN_ISO_CODE: "ESP"
+GERMANY_ISO_CODE: "DEU"
+FRANCE_ISO_CODE: "FRA"

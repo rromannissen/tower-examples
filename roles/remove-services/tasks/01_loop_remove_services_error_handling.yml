@@ -1,0 +1,33 @@
+---
+- name: '[Remove Service] Stop service'
+  service:
+    name: "{{ outer_item }}"
+    state: stopped
+  ignore_errors: true
+  register: STOP_SERVICE_RESULT
+
+- name: "[Remove Service] Check for errors in stop service output"
+  fail:
+    msg: "ERROR - Unhandled error: {{ STOP_SERVICE_RESULT.msg }}"
+  when:
+    - STOP_SERVICE_RESULT.failed == true
+    - '"Could not find the requested service" not in STOP_SERVICE_RESULT.msg'
+
+- name: '[Remove Service] Disable services'
+  service:
+    name: "{{ outer_item }}"
+    enabled: no
+  ignore_errors: true
+  register: DISABLE_SERVICE_RESULT
+
+- name: "[Remove Service] Check for errors in disable service output"
+  fail:
+    msg: "ERROR - Unhandled error: {{ DISABLE_SERVICE_RESULT.msg }}"
+  when:
+    - DISABLE_SERVICE_RESULT.failed == true
+    - '"Could not find the requested service" not in DISABLE_SERVICE_RESULT.msg'
+
+- name: '[Remove Service] Remove service declaration files'
+  file:
+    path: "/etc/systemd/system/{{ outer_item }}.service"
+    state: absent

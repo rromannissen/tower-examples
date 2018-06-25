@@ -1,0 +1,28 @@
+LoadModule ssl_module modules/mod_ssl.so
+
+Listen {{ inventory_hostname }}:{{ HTTP_PORT }}
+
+<VirtualHost *:{{ HTTP_PORT }}>
+   ErrorLog  "|{{ APACHE_CORE_BIN_PATH }}/sbin/rotatelogs  {{ APACHE_LOG_PATH }}/error_{{ INSTANCE_NAME }}_http_log.%Y%m%d 86400"
+   CustomLog "|{{ APACHE_CORE_BIN_PATH }}/sbin/rotatelogs  {{ APACHE_LOG_PATH }}/access_{{ INSTANCE_NAME }}_http_log.%Y%m%d 86400" rh_format env=!loopback
+   DocumentRoot {{ APACHE_STATICS_PATH }}
+   ServerName {{ SERVERNAME }}
+
+</VirtualHost>
+
+
+# Default virtual host
+# The use of this VH is because the way Apache selects the proper name-based virtual host
+# https://httpd.apache.org/docs/current/vhosts/name-based.html
+# A request that does not match the ServerName/Alias will be rejected by a HTTP 403 error
+<VirtualHost *:{{ HTTP_PORT }}>
+   ErrorLog  "|{{ APACHE_CORE_BIN_PATH }}/sbin/rotatelogs  {{ APACHE_LOG_PATH }}/error_default_log.%Y%m%d 86400"
+   CustomLog "|{{ APACHE_CORE_BIN_PATH }}/sbin/rotatelogs  {{ APACHE_LOG_PATH }}/access_default_log.%Y%m%d 86400" rh_format env=!loopback
+
+   <IfModule mod_rewrite.c>
+     RewriteEngine On
+     RewriteCond %{THE_REQUEST} ^.* [NC]
+     RewriteRule ^(.*)$ - [F,L]
+   </IfModule>
+
+</VirtualHost>

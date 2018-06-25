@@ -1,0 +1,19 @@
+---
+#Create service file using the template and place it in the systemd path.
+- name: '[Configure Service] Create service file from template'
+  template:
+    src: service.service.j2
+    dest: "/etc/systemd/system/apache-{{ INSTANCE_NAME }}.service"
+
+#Start and enable service (if it wasn't already started)
+- name: '[Configure Service] Start service'
+  service:
+    name: "apache-{{ INSTANCE_NAME }}"
+    state: started
+    enabled: yes
+
+#Reload service in case it was already started
+- name: '[Configure Service] Reload service'
+  service:
+    name: "apache-{{ INSTANCE_NAME }}"
+    state: reloaded

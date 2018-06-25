@@ -1,0 +1,117 @@
+---
+
+#Create bin directory and assign ownership to the Apache user and group.
+- name: '[Install Instance] Create bin directory'
+  file:
+    path: "{{ APACHE_CONF_BIN_PATH }}/bin"
+    state: directory
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+#Create execution scripts from template.
+- name: '[Install Instance] Create apache scripts from template'
+  template:
+    src: apache.sh.j2
+    dest: "{{ APACHE_CONF_BIN_PATH }}/bin/apache_{{ item }}.sh"
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+  with_items:
+    - "start"
+    - "stop"
+    - "graceful"
+
+#Create conf directory and assign ownership to the Apache user and group.
+- name: '[Install Instance] Create conf directory'
+  file:
+    path: "{{ APACHE_CONF_BIN_PATH }}/conf"
+    state: directory
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+#Create configuration files from their respective templates.
+- name: '[Install Instance] Create httpd.conf from template'
+  template:
+    src: httpd.conf.j2
+    dest: "{{ APACHE_CONF_BIN_PATH }}/conf/httpd.conf"
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+- name: '[Install Instance] Create mime.types from template'
+  template:
+    src: mime.types.j2
+    dest: "{{ APACHE_CONF_BIN_PATH }}/conf/mime.types"
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+#Create conf.d directory and assign ownership to the Apache user and group.
+- name: '[Install Instance] Create conf.d directory'
+  file:
+    path: "{{ APACHE_CONF_BIN_PATH }}/conf.d"
+    state: directory
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+- name: '[Install Instance] Create virtualhost.conf from template'
+  template:
+    src: virtualhost.conf.j2
+    dest: "{{ APACHE_CONF_BIN_PATH }}/conf.d/virtualhost.conf"
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+#Create htdocs directory and assign ownership to the Apache user and group.
+- name: '[Install Instance] Create htdocs directory'
+  file:
+    path: "{{ APACHE_CONF_BIN_PATH }}/htdocs/monitor"
+    state: directory
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+#Create cache directory and assign ownership to the Apache user and group.
+- name: '[Install Instance] Create cache directory'
+  file:
+    path: "{{ APACHE_CONF_BIN_PATH }}/cache"
+    state: directory
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+#Create tmp directory and assign ownership to the Apache user and group.
+- name: '[Install Instance] Create tmp directory'
+  file:
+    path: "{{ APACHE_CONF_BIN_PATH }}/tmp"
+    state: directory
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    mode: "0700"
+
+#Create symbolic links for modules and the rest of their configuration.
+- name: '[Install Instance] Create link to Core modules directory'
+  file:
+    src: "{{ APACHE_CORE_BIN_PATH }}/modules"
+    dest: "{{ APACHE_CONF_BIN_PATH }}/modules"
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    state: link
+
+- name: '[Install Instance] Create link to Core modules directory'
+  file:
+    src: "{{ APACHE_CORE_BIN_PATH }}/conf.modules.d"
+    dest: "{{ APACHE_CONF_BIN_PATH }}/conf.modules.d"
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    state: link
+
+- name: '[Install Instance] Create logs directory'
+  file:
+    path: "{{ APACHE_LOG_PATH }}"
+    owner: "{{ APACHE_USER }}"
+    group: "{{ APACHE_GROUP }}"
+    state: directory

@@ -1,0 +1,12 @@
+[Unit]
+Description={{ INSTANCE_NAME }} Apache Service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStart={{ APACHE_CONF_BIN_PATH }}/bin/apache_start.sh
+ExecReload={{ APACHE_CONF_BIN_PATH }}/bin/apache_graceful.sh
+ExecStop={{ APACHE_CONF_BIN_PATH }}/bin/apache_stop.sh
+
+[Install]
+WantedBy=multi-user.target

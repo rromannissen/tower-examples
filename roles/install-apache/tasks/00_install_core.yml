@@ -1,0 +1,62 @@
+---
+- name: '[Install Core] Create temporary directory'
+  file:
+    path: "{{ TMP_PATH }}"
+    state: directory
+
+#Unzip in the given path.
+- name: '[Install Core] Unzip EAP binaries file'
+  unarchive:
+    copy: no
+    src: "{{ APACHE_CORE_BINARIES_PATH }}"
+    dest: "{{ TMP_PATH }}"
+
+#Zip file contains a directory that may change along Apache versions. This gives us
+#the full path on which the binaries have been unzipped.
+- name: '[Install Core] Get binaries path'
+  find:
+    paths: "{{ TMP_PATH }}"
+    file_type: directory
+    patterns: "jbcs*"
+  register: find_result
+
+#Once we have the path for the unzipped directory, we move the httpd subdirectory to the given path.
+- name: '[Install Instance] Move binaries to the given path'
+  command: "mv {{ find_result.files[0]['path'] }}/httpd {{ APACHE_CORE_BIN_PATH }}"
+
+- name: '[Install Core] Clean temporary directory'
+  file:
+    path: "{{ TMP_PATH }}"
+    state: absent
+
+#Execute packaged post install script. Must change dir before,
+#as the script uses the current active directory for some operations.
+- name: '[Install Instance] Execute postinstall script.'
+  command: "chdir={{ APACHE_CORE_BIN_PATH }} {{ APACHE_CORE_BIN_PATH }}/.postinstall"
+
+#Set sticky bit for all scripts in the sbin directory
+- name: '[Install Core] Set sticky bit'
+  file:
+    path: "{{ APACHE_CORE_BIN_PATH }}/sbin"
+    recurse: yes
+    mode: "o+t"
+
+#Add the Apache libs to the RHEL OS shared libraries
+- name: '[Install Core] Add libs to shared libraries'
+  template:
+    src: apache.conf.j2
+    dest: "/etc/ld.so.conf.d/apache.conf"
+
+- name: '[Install Instance] Reload configuration'
+  command: "ldconfig"
+
+- name: '[Install Core] Create run directory'
+  file:
+    path: "/run/httpd"
+    state: directory
+
+- name: '[Install Core] Create base logs directory'
+  file:
+    path: "{{ APACHE_BASE_LOG_PATH }}"
+    state: directory
+    mode: "0755"

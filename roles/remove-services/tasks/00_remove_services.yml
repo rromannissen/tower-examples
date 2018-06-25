@@ -1,0 +1,6 @@
+---
+
+- include: 00_loop_remove_services.yml
+  with_items: "{{ SERVICES_LIST }}"
+  loop_control:
+    loop_var: outer_item

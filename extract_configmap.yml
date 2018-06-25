@@ -1,0 +1,6 @@
+---
+
+- name: "[Global] Extract ConfigMap from Template"
+  hosts: target
+  roles:
+    - extract-configmap

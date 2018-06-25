@@ -1,0 +1,3 @@
+---
+# tasks file for extract-configmap
+- include: "00_extract_config_map.yml"
